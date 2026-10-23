@@ -37,23 +37,29 @@ public actor FeedClient {
     public struct Snapshot: Sendable {
         public let schedule: Schedule
         public let live: LiveFeed?
-        public let lastChecked: Date?
+        public let scheduleLastChecked: Date?
+        public let liveLastChecked: Date?
+        public var lastChecked: Date? {
+            guard let scheduleLastChecked, let liveLastChecked else { return nil }
+            return min(scheduleLastChecked, liveLastChecked)
+        }
 
         public var engine: ScheduleEngine { ScheduleEngine(schedule: schedule, status: live?.status) }
 
-        public init(schedule: Schedule, live: LiveFeed?, lastChecked: Date?) {
+        public init(schedule: Schedule, live: LiveFeed?, scheduleLastChecked: Date?, liveLastChecked: Date?) {
             self.schedule = schedule
             self.live = live
-            self.lastChecked = lastChecked
+            self.scheduleLastChecked = scheduleLastChecked
+            self.liveLastChecked = liveLastChecked
         }
     }
 
     /// Cached data, falling back to the schedule bundled with the app.
     public func cached() -> Snapshot {
         let schedule: Schedule = load("schedule.json") ?? Self.bundledSchedule
-        let checked = (try? directory.appending(path: "schedule.json").resourceValues(forKeys: [.contentModificationDateKey]))?
-            .contentModificationDate
-        return Snapshot(schedule: schedule, live: load("live.json"), lastChecked: checked)
+        return Snapshot(schedule: schedule, live: load("live.json"),
+                        scheduleLastChecked: checkedAt("schedule.json"),
+                        liveLastChecked: checkedAt("live.json"))
     }
 
     @discardableResult
@@ -72,6 +78,11 @@ public actor FeedClient {
     private func load<T: Decodable>(_ name: String) -> T? {
         guard let data = try? Data(contentsOf: directory.appending(path: name)) else { return nil }
         return try? JSONDecoder.ferry.decode(T.self, from: data)
+    }
+
+    private func checkedAt(_ name: String) -> Date? {
+        (try? directory.appending(path: name).resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate
     }
 
     private func fetch<T: Decodable>(_ name: String, as: T.Type) async throws {

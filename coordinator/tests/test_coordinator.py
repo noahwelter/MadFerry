@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from madferry_coordinator import CROSSING_MINUTES, SCHEMA_VERSION, TIME_ZONE, TERMINALS
 from madferry_coordinator import build, extract, fetch, live, validate
 
 FIX = Path(__file__).parent / "fixtures"
@@ -24,6 +25,16 @@ def ferry(start, end, end_note=None, label=None):
         "departures": [{"from": "bayfield", "time": "08:00", "days": [1, 2, 3, 4, 5, 6, 7]},
                        {"from": "lapointe", "time": "08:30", "days": [1, 2, 3, 4, 5, 6, 7]}],
     })
+
+
+def schedule_document(seasons):
+    return {
+        "schemaVersion": SCHEMA_VERSION,
+        "timeZone": TIME_ZONE,
+        "crossingMinutes": CROSSING_MINUTES,
+        "terminals": TERMINALS,
+        "seasons": seasons,
+    }
 
 
 class FetchTests(unittest.TestCase):
@@ -73,13 +84,49 @@ class ValidateTests(unittest.TestCase):
         self.assertIn("duplicate", errors)
         self.assertIn("ISO weekdays", errors)
 
+    def test_rejects_noncanonical_dates_and_non_json_boolean_fields(self):
+        season = ferry("2026-05-01", "2026-06-01")
+        season["startDate"] = "2026-5-01"
+        season["departures"][0]["days"] = [True]
+        season["departures"][1]["restricted"] = "false"
+        errors = " ".join(validate.validate_season(season))
+        self.assertIn("invalid date", errors)
+        self.assertIn("ISO weekdays", errors)
+        self.assertIn("restricted must be a boolean", errors)
+
+    def test_schedule_validator_reports_invalid_container_shapes(self):
+        self.assertEqual(validate.validate_schedule([]), ["schedule is not an object"])
+        errors = validate.validate_schedule({"seasons": {}})
+        self.assertIn("seasons must be a list", errors)
+
+    def test_schedule_validator_checks_envelope_and_handles_malformed_nested_values(self):
+        season = ferry("2026-05-01", "2026-06-01")
+        season.update(id=[])
+        season["kind"] = []
+        season["startDate"] = []
+        season["departures"][0]["from"] = []
+        season["departures"][1]["days"] = [[1]]
+        document = schedule_document([season])
+        document["schemaVersion"] = True
+        document["timeZone"] = "Not/A_Timezone"
+        document["crossingMinutes"] = False
+        errors = validate.validate_schedule(document)
+        self.assertIn("schemaVersion must be 1", errors)
+        self.assertTrue(any("timeZone" in error for error in errors))
+        self.assertIn("crossingMinutes must be a positive integer", errors)
+        self.assertIn("every season must have a non-empty string id", errors)
+        self.assertTrue(any("kind must be one of" in error for error in errors))
+        self.assertTrue(any("days must be" in error for error in errors))
+
     def test_open_ended_needs_end_note_and_wrong_year_is_flagged(self):
         self.assertTrue(validate.validate_season(ferry("2026-11-30", None)))
         self.assertTrue(validate.plausibility_errors(ferry("2028-05-01", "2028-06-01"), dt.date(2026, 10, 23)))
 
     def test_open_ended_season_followed_by_later_season_is_allowed(self):
-        sched = {"seasons": [dict(ferry("2026-11-30", None, "Until heavy ice"), id="a"),
-                             dict(ferry("2027-04-01", "2027-06-01"), id="b")]}
+        sched = schedule_document([
+            dict(ferry("2026-11-30", None, "Until heavy ice"), id="a"),
+            dict(ferry("2027-04-01", "2027-06-01"), id="b"),
+        ])
         self.assertEqual(validate.validate_schedule(sched), [])
 
 

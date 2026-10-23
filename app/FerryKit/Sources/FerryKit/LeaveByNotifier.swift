@@ -5,8 +5,8 @@ import UserNotifications
 public enum LeaveByNotifier {
     private static let prefix = "leaveBy."
 
-    public static func requestAuthorization() async -> Bool {
-        (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
+    public static func requestAuthorization() async throws -> Bool {
+        try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
     }
 
     /// When the first reminder for `plan` will fire: the heads-up if it's still ahead, otherwise leave-by.

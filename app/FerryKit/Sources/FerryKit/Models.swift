@@ -36,9 +36,15 @@ public struct Departure: Codable, Sendable, Hashable {
     }
 
     var minutesAfterMidnight: Int? {
-        let parts = time.split(separator: ":").compactMap { Int($0) }
-        guard parts.count == 2 else { return nil }
-        return parts[0] * 60 + parts[1]
+        let bytes = Array(time.utf8)
+        guard bytes.count == 5, bytes[2] == 58,
+              bytes.enumerated().allSatisfy({ pair in
+                  pair.offset == 2 || (48...57).contains(pair.element)
+              }),
+              let hour = Int(time.prefix(2)),
+              let minute = Int(time.suffix(2)),
+              (0...23).contains(hour), (0...59).contains(minute) else { return nil }
+        return hour * 60 + minute
     }
 }
 
@@ -136,9 +142,24 @@ public struct LocalDate: Codable, Sendable, Hashable, Comparable, CustomStringCo
     }
 
     public init?(_ string: String) {
-        let p = string.split(separator: "-").compactMap { Int($0) }
-        guard p.count == 3 else { return nil }
-        self.init(year: p[0], month: p[1], day: p[2])
+        let bytes = Array(string.utf8)
+        guard bytes.count == 10, bytes[4] == 45, bytes[7] == 45,
+              bytes.enumerated().allSatisfy({ pair in
+                  pair.offset == 4 || pair.offset == 7 || (48...57).contains(pair.element)
+              }),
+              let year = Int(string.prefix(4)),
+              let month = Int(string.dropFirst(5).prefix(2)),
+              let day = Int(string.suffix(2)),
+              year > 0 else { return nil }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
+            return nil
+        }
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        guard components.year == year, components.month == month, components.day == day else { return nil }
+        self.init(year: year, month: month, day: day)
     }
 
     public init(_ date: Date, in tz: TimeZone) {

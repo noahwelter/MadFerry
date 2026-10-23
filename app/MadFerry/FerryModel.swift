@@ -9,6 +9,27 @@ import WidgetKit
 @Observable
 @MainActor
 final class FerryModel {
+    enum ReminderFailure: Equatable {
+        case notificationsNotAllowed
+        case scheduling(String)
+
+        var title: String {
+            switch self {
+            case .notificationsNotAllowed: "Notifications Are Off"
+            case .scheduling: "Couldn’t Set Reminder"
+            }
+        }
+
+        var message: String {
+            switch self {
+            case .notificationsNotAllowed:
+                "Allow notifications for Ferry to receive a reminder when it’s time to leave."
+            case .scheduling(let detail):
+                "The reminder could not be scheduled. \(detail)"
+            }
+        }
+    }
+
     enum Direction: String, CaseIterable, Identifiable {
         case auto, bayfield, lapointe
         var id: String { rawValue }
@@ -20,6 +41,7 @@ final class FerryModel {
     private(set) var isRefreshing = false
     private(set) var refreshError: String?
     private(set) var plannedTrip: PlannedTrip?
+    private(set) var reminderFailure: ReminderFailure?
     var preferences: TripPreferences {
         didSet { preferences.save(); reloadWidgets() }
     }
@@ -27,7 +49,8 @@ final class FerryModel {
     var direction: Direction = .auto
 
     init() {
-        snapshot = FeedClient.Snapshot(schedule: FeedClient.bundledSchedule, live: nil, lastChecked: nil)
+        snapshot = FeedClient.Snapshot(schedule: FeedClient.bundledSchedule, live: nil,
+                                       scheduleLastChecked: nil, liveLastChecked: nil)
         preferences = TripPreferences.load()
         estimate = TravelEstimate.load()
         plannedTrip = PlannedTrip.load()
@@ -83,36 +106,47 @@ final class FerryModel {
             snapshot = try await FeedClient.shared.refresh()
             refreshError = nil
         } catch {
-            refreshError = "Couldn’t reach the schedule server. Showing saved times."
+            snapshot = await FeedClient.shared.cached()
+            refreshError = "Some data could not be refreshed. Showing the latest available schedule and advisories."
         }
-        await refreshTravelTime()
         await reschedulePlannedTrip()
         startLiveActivityIfNear()
         reloadWidgets()
     }
 
-    func refreshTravelTime() async {
+    func refreshTravelTime(requestAuthorizationIfNeeded: Bool = false) async {
         do {
-            estimate = try await TravelEstimator.shared.estimate(preferences: preferences, schedule: snapshot.schedule)
+            estimate = try await TravelEstimator.shared.estimate(
+                preferences: preferences, schedule: snapshot.schedule,
+                requestAuthorizationIfNeeded: requestAuthorizationIfNeeded)
             estimateError = nil
         } catch {
-            estimateError = "Allow location access to see when to leave."
+            estimateError = "Location unavailable. Check access or choose a terminal in Settings."
         }
     }
 
     // MARK: - Planning a trip
 
     func remind(_ plan: LeaveByPlan) async -> Bool {
-        guard await LeaveByNotifier.requestAuthorization() else { return false }
         do {
+            guard try await LeaveByNotifier.requestAuthorization() else {
+                reminderFailure = .notificationsNotAllowed
+                return false
+            }
             try await LeaveByNotifier.schedule(plan, alertMinutes: preferences.leaveByAlertMinutes, tz: timeZone)
         } catch {
+            reminderFailure = .scheduling(error.localizedDescription)
             return false
         }
+        reminderFailure = nil
         plannedTrip = PlannedTrip.load()
         startLiveActivityIfNear()
         reloadWidgets()
         return true
+    }
+
+    func clearReminderFailure() {
+        reminderFailure = nil
     }
 
     /// Keeps leave-by alerts in step with the latest travel time and settings.
