@@ -10,6 +10,12 @@ struct NextFerryView: View {
             let now = context.date
             let plans = model.plans(now: now)
             List {
+                if let error = model.refreshError {
+                    Section {
+                        Label(error, systemImage: "wifi.exclamationmark")
+                    }
+                }
+
                 if let status = model.status, status.isNoteworthy {
                     Section { StatusBanner(status: status) }
                 }
@@ -73,28 +79,53 @@ struct NextFerryView: View {
         }
         #endif
         .sensoryFeedback(.success, trigger: model.plannedTrip) { old, new in new != nil && old != new }
-        .alert("Notifications Are Off", isPresented: $reminderFailed) {
-            #if os(iOS)
-            Button("Open Settings") {
-                if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                    UIApplication.shared.open(url)
+        .alert(model.reminderFailure?.title ?? "Reminder Failed", isPresented: $reminderFailed) {
+            if model.reminderFailure == .notificationsNotAllowed {
+                #if os(iOS)
+                Button("Open Settings") {
+                    model.clearReminderFailure()
+                    if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
                 }
+                #endif
             }
-            #endif
-            Button("Not Now", role: .cancel) {}
+            Button("OK", role: .cancel) { model.clearReminderFailure() }
         } message: {
-            Text("To get a reminder when it’s time to leave, allow notifications for Ferry in Settings.")
+            Text(model.reminderFailure?.message ?? "Please try again.")
         }
     }
 
     @ViewBuilder private var travelFooter: some View {
         if let error = model.estimateError {
-            Label(error, systemImage: "location.slash")
+            VStack(alignment: .leading, spacing: 4) {
+                Label(error, systemImage: "location.slash")
+                estimateButton
+            }
         } else if model.travelSeconds != nil {
             Text("Includes current \(model.preferences.travelMode == .driving ? "driving" : "walking") time from your location.")
+        } else if model.estimate != nil {
+            VStack(alignment: .leading, spacing: 4) {
+                Label("Travel estimate is stale. Leave-by times assume you’re nearby.",
+                      systemImage: "location.slash")
+                estimateButton
+            }
         } else {
-            Text("Travel time unavailable. Leave-by times assume you’re nearby.")
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Travel time unavailable. Leave-by times assume you’re nearby.")
+                estimateButton
+            }
         }
+    }
+
+    private var estimateButton: some View {
+        Button("Estimate travel time from your location", systemImage: "location") {
+            Task {
+                await model.refreshTravelTime(requestAuthorizationIfNeeded: true)
+                await model.reschedulePlannedTrip()
+            }
+        }
+        .font(.footnote)
     }
 
     @ViewBuilder private func reminderButton(_ plan: LeaveByPlan) -> some View {

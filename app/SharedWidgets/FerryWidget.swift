@@ -73,7 +73,8 @@ enum DayServiceSummary {
 
 struct FerryProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> FerryEntry {
-        Self.entry(snapshot: .init(schedule: FeedClient.bundledSchedule, live: nil, lastChecked: nil),
+        Self.entry(snapshot: .init(schedule: FeedClient.bundledSchedule, live: nil,
+                                   scheduleLastChecked: nil, liveLastChecked: nil),
                    terminal: .bayfield, at: .now)
     }
 

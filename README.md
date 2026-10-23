@@ -13,7 +13,9 @@ place.
 
 The app targets iPhone, iPad, Mac, and Apple Watch. It uses SwiftUI, MapKit,
 WidgetKit, and ActivityKit. The schedule is bundled for offline use; the app can
-also refresh schedule and advisory data from a static JSON feed.
+also refresh schedule and advisory data from a static JSON feed. Location is
+optional: the app asks for access only when you request a travel-time estimate.
+Schedule browsing and manual terminal selection work without location access.
 
 ### Build and run
 

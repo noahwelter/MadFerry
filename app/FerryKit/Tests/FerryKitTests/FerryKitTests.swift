@@ -8,8 +8,38 @@ private func date(_ s: String, _ h: Int, _ m: Int) -> Date { LocalDate(s)!.date(
 
 private let schedule = FeedClient.bundledSchedule
 
+@Suite struct FeedSnapshotTests {
+    @Test func freshnessRequiresBothFeedsAndUsesTheOlderCheck() {
+        let scheduleChecked = date("2026-11-03", 10, 0)
+        let liveChecked = date("2026-11-03", 9, 0)
+        let snapshot = FeedClient.Snapshot(schedule: schedule, live: nil,
+                                           scheduleLastChecked: scheduleChecked,
+                                           liveLastChecked: liveChecked)
+        #expect(snapshot.lastChecked == liveChecked)
+
+        let incomplete = FeedClient.Snapshot(schedule: schedule, live: nil,
+                                             scheduleLastChecked: scheduleChecked,
+                                             liveLastChecked: nil)
+        #expect(incomplete.lastChecked == nil)
+    }
+}
+
 @Suite struct ScheduleEngineTests {
     let engine = ScheduleEngine(schedule: schedule)
+
+    @Test func localDateRejectsInvalidOrNonCanonicalDates() {
+        for value in ["2026-2-03", "2026-02-30", "2026-13-01", "2026/02/01", "0000-01-01"] {
+            #expect(LocalDate(value) == nil)
+        }
+        #expect(LocalDate("2026-02-28") != nil)
+    }
+
+    @Test func departureTimeRejectsOutOfRangeComponents() {
+        #expect(Departure(from: .bayfield, time: "24:00", days: [1]).minutesAfterMidnight == nil)
+        #expect(Departure(from: .bayfield, time: "12:60", days: [1]).minutesAfterMidnight == nil)
+        #expect(Departure(from: .bayfield, time: "1:02", days: [1]).minutesAfterMidnight == nil)
+        #expect(Departure(from: .bayfield, time: "12:30", days: [1]).minutesAfterMidnight == 750)
+    }
 
     @Test func weekdayRulesApply() {
         // 2026-11-06 is a Friday, 2026-11-05 a Thursday (Nov 2 – Nov 29 season).

@@ -16,6 +16,7 @@ struct MadFerryWatchApp: App {
 
 struct WatchContentView: View {
     @Environment(FerryModel.self) private var model
+    @State private var reminderFailed = false
 
     var body: some View {
         NavigationStack {
@@ -50,7 +51,9 @@ struct WatchContentView: View {
                                 }
                             } else if first.canRemind {
                                 Button("Remind Me to Leave", systemImage: "bell") {
-                                    Task { _ = await model.remind(first) }
+                                    Task {
+                                        if !(await model.remind(first)) { reminderFailed = true }
+                                    }
                                 }
                                 .buttonStyle(.borderedProminent)
                             }
@@ -71,6 +74,11 @@ struct WatchContentView: View {
                 }
             }
             .navigationTitle(model.departureTerminal.directionLabel)
+            .alert(model.reminderFailure?.title ?? "Reminder Failed", isPresented: $reminderFailed) {
+                Button("OK", role: .cancel) { model.clearReminderFailure() }
+            } message: {
+                Text(model.reminderFailure?.message ?? "Please try again.")
+            }
             .sensoryFeedback(.success, trigger: model.plannedTrip) { old, new in new != nil && old != new }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
