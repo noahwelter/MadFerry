@@ -9,6 +9,12 @@ public enum LeaveByNotifier {
         (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
     }
 
+    /// When the first reminder for `plan` will fire: the heads-up if it's still ahead, otherwise leave-by.
+    public static func firstAlert(for plan: LeaveByPlan, alertMinutes: Int, now: Date = .now) -> Date {
+        let headsUp = plan.leaveBy.addingTimeInterval(-TimeInterval(alertMinutes * 60))
+        return headsUp > now ? headsUp : plan.leaveBy
+    }
+
     /// Schedules a heads-up `alertMinutes` before leave-by and an alert at leave-by. Replaces any previous plan.
     public static func schedule(_ plan: LeaveByPlan, alertMinutes: Int, tz: TimeZone, now: Date = .now) async throws {
         await cancelAll()

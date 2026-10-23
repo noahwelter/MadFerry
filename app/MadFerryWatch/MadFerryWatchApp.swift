@@ -32,7 +32,7 @@ struct WatchContentView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(first.trip.departure.ferryTime(model.timeZone))
                                     .font(.system(.title2, design: .rounded).weight(.bold).monospacedDigit())
-                                Text(first.trip.departure, style: .relative)
+                                Text(first.trip.departure.ferryCountdown(from: context.date))
                                     .font(.footnote).foregroundStyle(.secondary)
                                 Label(first.headline(model.timeZone), systemImage: first.urgency.symbol)
                                     .font(.headline)
@@ -40,12 +40,19 @@ struct WatchContentView: View {
                                 Text(first.detail(mode: model.preferences.travelMode))
                                     .font(.footnote).foregroundStyle(.secondary)
                             }
-                            Button(model.isPlanned(first.trip) ? "Cancel Reminder" : "Remind Me",
-                                   systemImage: model.isPlanned(first.trip) ? "bell.slash" : "bell") {
-                                Task {
-                                    if model.isPlanned(first.trip) { await model.cancelPlan() }
-                                    else { _ = await model.remind(first) }
+                            if model.isPlanned(first.trip) {
+                                Label("Reminder at \(model.reminderAlert(for: first, now: context.date).ferryTime(model.timeZone))",
+                                      systemImage: "bell.badge.fill")
+                                    .font(.footnote)
+                                    .foregroundStyle(.tint)
+                                Button("Turn Off Reminder", systemImage: "bell.slash", role: .destructive) {
+                                    Task { await model.cancelPlan() }
                                 }
+                            } else if first.canRemind {
+                                Button("Remind Me to Leave", systemImage: "bell") {
+                                    Task { _ = await model.remind(first) }
+                                }
+                                .buttonStyle(.borderedProminent)
                             }
                         }
                         Section("Later") {
@@ -64,6 +71,7 @@ struct WatchContentView: View {
                 }
             }
             .navigationTitle(model.departureTerminal.directionLabel)
+            .sensoryFeedback(.success, trigger: model.plannedTrip) { old, new in new != nil && old != new }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Switch direction", systemImage: "arrow.left.arrow.right") {

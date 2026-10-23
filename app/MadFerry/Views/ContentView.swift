@@ -55,7 +55,8 @@ struct StatusBanner: View {
     var body: some View {
         Label {
             VStack(alignment: .leading, spacing: 2) {
-                Text(status.disrupted ? "Service disruption" : status.mode.title)
+                Text(status.disrupted ? "Service disruption"
+                     : status.mode == .ferry ? "Ferry running on schedule" : status.mode.title)
                     .font(.headline)
                 if let message = status.message {
                     Text(message).font(.subheadline).foregroundStyle(.secondary)

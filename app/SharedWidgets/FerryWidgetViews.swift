@@ -86,7 +86,7 @@ private struct HeroView: View {
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
                 .widgetAccentable()
-            Text(plan.trip.departure, style: .relative)
+            CountdownText(to: plan.trip.departure)
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .lineLimit(1)

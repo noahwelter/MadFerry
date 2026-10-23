@@ -47,8 +47,10 @@ final class FerryModel {
     }
 
     /// Travel time applies only when it was computed for the selected terminal.
-    var travelSeconds: TimeInterval? {
-        guard let estimate, estimate.terminal == departureTerminal, estimate.isFresh(at: .now) else { return nil }
+    var travelSeconds: TimeInterval? { travelSeconds(from: departureTerminal) }
+
+    func travelSeconds(from terminal: TerminalID) -> TimeInterval? {
+        guard let estimate, estimate.terminal == terminal, estimate.isFresh(at: .now) else { return nil }
         return estimate.seconds
     }
 
@@ -84,6 +86,8 @@ final class FerryModel {
             refreshError = "Couldn’t reach the schedule server. Showing saved times."
         }
         await refreshTravelTime()
+        await reschedulePlannedTrip()
+        startLiveActivityIfNear()
         reloadWidgets()
     }
 
@@ -106,11 +110,39 @@ final class FerryModel {
             return false
         }
         plannedTrip = PlannedTrip.load()
-        #if os(iOS)
-        _ = try? FerryLiveActivity.start(plan: plan, timeZone: timeZone, disrupted: status?.disrupted ?? false)
-        #endif
+        startLiveActivityIfNear()
         reloadWidgets()
         return true
+    }
+
+    /// Keeps leave-by alerts in step with the latest travel time and settings.
+    func reschedulePlannedTrip(now: Date = .now) async {
+        plannedTrip = PlannedTrip.load(now: now)
+        guard let planned = plannedTrip else { return }
+        let plan = LeaveByPlan(trip: planned.trip, travelSeconds: travelSeconds(from: planned.trip.from),
+                               bufferMinutes: preferences.bufferMinutes, now: now)
+        guard plan.canRemind else { return }
+        try? await LeaveByNotifier.schedule(plan, alertMinutes: preferences.leaveByAlertMinutes, tz: timeZone, now: now)
+        #if os(iOS)
+        await FerryLiveActivity.update(leaveBy: plan.leaveBy, travelMinutes: estimate?.minutes,
+                                       disrupted: status?.disrupted ?? false)
+        #endif
+    }
+
+    /// Live Activities are for the imminent trip only; later plans start one once the app is opened near departure.
+    func startLiveActivityIfNear(now: Date = .now) {
+        #if os(iOS)
+        guard let planned = plannedTrip, !FerryLiveActivity.isRunning else { return }
+        let plan = LeaveByPlan(trip: planned.trip, travelSeconds: travelSeconds(from: planned.trip.from),
+                               bufferMinutes: preferences.bufferMinutes, now: now)
+        guard plan.leaveBy.timeIntervalSince(now) <= 90 * 60 else { return }
+        _ = try? FerryLiveActivity.start(plan: plan, timeZone: timeZone, disrupted: status?.disrupted ?? false)
+        #endif
+    }
+
+    /// When the user will first be alerted for the planned trip.
+    func reminderAlert(for plan: LeaveByPlan, now: Date = .now) -> Date {
+        LeaveByNotifier.firstAlert(for: plan, alertMinutes: preferences.leaveByAlertMinutes, now: now)
     }
 
     func cancelPlan() async {

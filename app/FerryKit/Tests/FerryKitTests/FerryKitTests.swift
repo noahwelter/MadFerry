@@ -73,6 +73,20 @@ private let schedule = FeedClient.bundledSchedule
         #expect(plan.urgency == expected)
     }
 
+    @Test func firstAlertFallsBackToLeaveByOnceHeadsUpHasPassed() {
+        let plan = LeaveByPlan(trip: trip, travelSeconds: 20 * 60, bufferMinutes: 10, now: date("2026-11-03", 11, 0))
+        #expect(LeaveByNotifier.firstAlert(for: plan, alertMinutes: 10, now: date("2026-11-03", 11, 0)) == date("2026-11-03", 11, 20))
+        #expect(LeaveByNotifier.firstAlert(for: plan, alertMinutes: 10, now: date("2026-11-03", 11, 25)) == date("2026-11-03", 11, 30))
+    }
+
+    @Test func countdownIsCoarse() {
+        let now = date("2026-11-03", 11, 0)
+        #expect(now.addingTimeInterval(40 * 60 - 29).ferryCountdown(from: now) == "in 40 min")
+        #expect(now.addingTimeInterval(65 * 60).ferryCountdown(from: now) == "in 1 hr 5 min")
+        #expect(now.addingTimeInterval(120 * 60).ferryCountdown(from: now) == "in 2 hr")
+        #expect(now.ferryCountdown(from: now) == "now")
+    }
+
     @Test func terminalFromLocation() {
         #expect(Geography.departureTerminal(latitude: 46.7779, longitude: -90.7863) == .lapointe)
         #expect(Geography.departureTerminal(latitude: 46.8119, longitude: -90.8142) == .bayfield)

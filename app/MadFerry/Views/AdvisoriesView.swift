@@ -45,7 +45,7 @@ struct AdvisoriesView: View {
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {
                     if let generated = live?.generatedAt {
-                        Text("Advisories checked \(generated, style: .relative) ago.")
+                        Text("Advisories checked \(generated.formatted(.relative(presentation: .named))).")
                     }
                     if let error = model.refreshError { Text(error) }
                 }
@@ -93,6 +93,11 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
-        .onChange(of: model.preferences) { Task { await model.refreshTravelTime() } }
+        .onChange(of: model.preferences) {
+            Task {
+                await model.refreshTravelTime()
+                await model.reschedulePlannedTrip()
+            }
+        }
     }
 }
