@@ -72,8 +72,9 @@ def _chat(messages) -> Dict:
     req = urllib.request.Request(
         f"{base}/chat/completions",
         data=body,
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        headers={"Content-Type": "application/json"},
     )
+    req.add_header("Authorization", "Bearer " + key)
     try:
         with urllib.request.urlopen(req, timeout=180) as resp:
             payload = json.loads(resp.read())

@@ -24,3 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: swift test --package-path app/FerryKit
+      - name: Build iOS app
+        working-directory: app
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -quiet -project MadFerry.xcodeproj -scheme MadFerry \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

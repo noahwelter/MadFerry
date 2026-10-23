@@ -2,8 +2,9 @@ import datetime as dt
 import json
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from madferry_coordinator import build, fetch, live, validate
+from madferry_coordinator import build, extract, fetch, live, validate
 
 FIX = Path(__file__).parent / "fixtures"
 EXPECTED = FIX / "expected"
@@ -38,6 +39,20 @@ class FetchTests(unittest.TestCase):
     def test_alerts_boilerplate_is_not_an_advisory(self):
         page = json.loads((FIX / "page-570.json").read_text())
         self.assertEqual(live.advisories(fetch.paragraphs(page["content"]["rendered"])), [])
+
+
+class ExtractTests(unittest.TestCase):
+    def test_chat_sends_bearer_api_key(self):
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = (
+            b'{"choices":[{"message":{"content":"{}"}}]}'
+        )
+        with patch.object(extract, "_config", return_value=("https://example.test", "test-key", "test-model")):
+            with patch.object(extract.urllib.request, "urlopen", return_value=response) as urlopen:
+                self.assertEqual(extract._chat([]), {})
+
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.get_header("Authorization"), "Bearer test-key")
 
 
 class ValidateTests(unittest.TestCase):
