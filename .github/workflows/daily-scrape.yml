@@ -1,0 +1,98 @@
+name: Daily schedule scrape
+
+on:
+  schedule:
+    - cron: "15 10 * * *" # ~5:15 AM Central
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    outputs:
+      live_changed: ${{ steps.live.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Scrape, extract and validate
+        id: run
+        working-directory: coordinator
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
+        run: |
+          set +e
+          python -m madferry_coordinator run --data ../data --out ../out
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          [ "$code" = "0" ] || [ "$code" = "3" ]
+
+      - name: Publish live status and advisories
+        id: live
+        run: |
+          git config user.name "madferry-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/v1/live.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Update live status $(date -u +%Y-%m-%d)"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open schedule review PR
+        if: steps.run.outputs.schedule_changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: schedule-update
+          delete-branch: true
+          add-paths: |
+            data/v1/schedule.json
+            data/extractions/*.json
+          commit-message: Update ferry schedule from madferry.com
+          title: "Ferry schedule changed — please review"
+          body-path: out/report.md
+          labels: schedule-review
+
+      - name: Report extraction problems
+        if: steps.run.outputs.exit_code == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create scrape-problem --color d73a4a --force >/dev/null
+          existing=$(gh issue list --label scrape-problem --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file out/report.md
+          else
+            gh issue create --title "Ferry schedule scrape needs attention" --label scrape-problem --body-file out/report.md
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scrape-report
+          path: out/
+          if-no-files-found: ignore
+
+  deploy:
+    needs: scrape
+    if: needs.scrape.outputs.live_changed == 'true'
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

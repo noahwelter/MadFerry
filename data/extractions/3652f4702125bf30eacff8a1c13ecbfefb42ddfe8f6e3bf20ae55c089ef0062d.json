@@ -1,0 +1,451 @@
+{
+  "sourceHash": "3652f4702125bf30eacff8a1c13ecbfefb42ddfe8f6e3bf20ae55c089ef0062d",
+  "sourceUrl": "https://madferry.com/wp-content/uploads/2026/02/SEPTEMBER-8-NOVEMBER-1-2026-1.jpg",
+  "sourceTitle": "SEPTEMBER-8-NOVEMBER-1-2026-1",
+  "firstSeen": "2026-10-23",
+  "season": {
+    "kind": "ferry",
+    "label": "Sept 8 – Nov 1",
+    "startDate": "2026-09-08",
+    "endDate": "2026-11-01",
+    "endNote": null,
+    "notes": [],
+    "departures": [
+      {
+        "from": "bayfield",
+        "time": "07:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "08:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "09:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "10:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "11:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "12:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "13:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "14:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "15:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "16:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "17:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "18:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "19:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "20:00",
+        "days": [
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "21:00",
+        "days": [
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "22:00",
+        "days": [
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "07:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "08:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "09:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "10:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "11:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "12:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "13:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "14:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "15:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "16:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "17:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "18:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "19:30",
+        "days": [
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "20:30",
+        "days": [
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "21:30",
+        "days": [
+          5
+        ],
+        "note": null,
+        "restricted": false
+      }
+    ]
+  }
+}

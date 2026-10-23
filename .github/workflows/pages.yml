@@ -1,0 +1,44 @@
+name: Publish data to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/v1/**"]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp -R data/v1 site/v1
+          cat > site/index.html <<'EOF'
+          <!doctype html><meta charset="utf-8"><title>Madeline Island Ferry data</title>
+          <p>Unofficial machine-readable Madeline Island Ferry schedule.
+          <a href="v1/schedule.json">schedule.json</a> · <a href="v1/live.json">live.json</a>.
+          Official source: <a href="https://madferry.com/ferry-schedule">madferry.com</a>.</p>
+          EOF
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

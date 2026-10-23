@@ -1,0 +1,15 @@
+# Coordinator
+out/
+__pycache__/
+*.pyc
+.venv/
+
+# Xcode (project is generated from app/project.yml by XcodeGen)
+app/MadFerry.xcodeproj/
+xcuserdata/
+DerivedData/
+.build/
+.swiftpm/
+*.xcuserstate
+
+.DS_Store

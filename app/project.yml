@@ -1,0 +1,142 @@
+name: MadFerry
+options:
+  bundleIdPrefix: com.noahwelter
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+    watchOS: "26.0"
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+packages:
+  FerryKit:
+    path: FerryKit
+
+targets:
+  MadFerry:
+    type: application
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - MadFerry
+      - Resources
+    dependencies:
+      - package: FerryKit
+      - target: MadFerryWidgets
+      - target: MadFerryWatch
+        destinationFilters: [iOS]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.noahwelter.madferry
+        PRODUCT_NAME: MadFerry
+        INFOPLIST_KEY_CFBundleDisplayName: Ferry
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: Config/MadFerry-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Config/MadFerry-macOS.entitlements
+    info:
+      path: MadFerry/Info.plist
+      properties:
+        CFBundleDisplayName: Ferry
+        LSApplicationCategoryType: public.app-category.travel
+        ITSAppUsesNonExemptEncryption: false
+        NSLocationWhenInUseUsageDescription: Your location is used to estimate travel time to the ferry terminal so the app can tell you when to leave.
+        NSSupportsLiveActivities: true
+        UILaunchScreen: {}
+        UIBackgroundModes: [fetch]
+        BGTaskSchedulerPermittedIdentifiers: [com.noahwelter.madferry.refresh]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortraitUpsideDown]
+
+  MadFerryWidgets:
+    type: app-extension
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - MadFerryWidgets
+      - SharedWidgets
+    dependencies:
+      - package: FerryKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.noahwelter.madferry.widgets
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: Config/Widgets-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Config/Widgets-macOS.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: MadFerryWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Ferry
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+  MadFerryWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - MadFerryWatch
+      - MadFerry/FerryModel.swift
+      - Resources
+    dependencies:
+      - package: FerryKit
+      - target: MadFerryWatchWidgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.noahwelter.madferry.watchkitapp
+        PRODUCT_NAME: MadFerryWatch
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Config/Widgets-iOS.entitlements
+    info:
+      path: MadFerryWatch/Info.plist
+      properties:
+        CFBundleDisplayName: Ferry
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.noahwelter.madferry
+        NSLocationWhenInUseUsageDescription: Your location is used to estimate travel time to the ferry terminal so the app can tell you when to leave.
+
+  MadFerryWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - MadFerryWatchWidgets
+      - SharedWidgets
+    dependencies:
+      - package: FerryKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.noahwelter.madferry.watchkitapp.widgets
+        CODE_SIGN_ENTITLEMENTS: Config/Widgets-iOS.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: MadFerryWatchWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Ferry
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+
+schemes:
+  MadFerry:
+    build:
+      targets:
+        MadFerry: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  MadFerryWatch:
+    build:
+      targets:
+        MadFerryWatch: all

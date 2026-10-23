@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-23T13:03:09-05:00",
+  "status": {
+    "mode": "ferry",
+    "disrupted": false,
+    "message": null,
+    "source": "schedule"
+  },
+  "advisories": [],
+  "alertsUrl": "https://madferry.com/weather-alerts",
+  "textAlerts": "Text MADFERRY to 715-200-9057 for schedule changes and cancellations.",
+  "windsledHotline": "715-747-5400"
+}

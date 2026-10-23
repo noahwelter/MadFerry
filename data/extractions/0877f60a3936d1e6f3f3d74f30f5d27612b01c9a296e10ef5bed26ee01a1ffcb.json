@@ -1,0 +1,226 @@
+{
+  "sourceHash": "0877f60a3936d1e6f3f3d74f30f5d27612b01c9a296e10ef5bed26ee01a1ffcb",
+  "sourceUrl": "https://madferry.com/ice-road-windsled-information",
+  "sourceTitle": "Windsled",
+  "firstSeen": "2026-10-23",
+  "season": {
+    "kind": "windsled",
+    "label": "Windsled & van",
+    "startDate": null,
+    "endDate": null,
+    "endNote": null,
+    "notes": [
+      "Windsleds and vans are operated by the Town of La Pointe / Windsled Inc., not the ferry line. Schedule may change without notice; call the 24-hour hotline 715-747-5400."
+    ],
+    "departures": [
+      {
+        "from": "bayfield",
+        "time": "07:45",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "08:15",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": "School kids only (if school in session)",
+        "restricted": true
+      },
+      {
+        "from": "bayfield",
+        "time": "09:15",
+        "days": [
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "09:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "12:15",
+        "days": [
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "12:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "16:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "16:15",
+        "days": [
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "bayfield",
+        "time": "17:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "07:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "08:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": "School kids only (if school in session)",
+        "restricted": true
+      },
+      {
+        "from": "lapointe",
+        "time": "09:00",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "11:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "12:00",
+        "days": [
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "15:45",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "16:00",
+        "days": [
+          6,
+          7
+        ],
+        "note": null,
+        "restricted": false
+      },
+      {
+        "from": "lapointe",
+        "time": "16:30",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "note": null,
+        "restricted": false
+      }
+    ]
+  }
+}
