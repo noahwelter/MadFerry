@@ -175,5 +175,6 @@ data/         Archived extractions and published JSON feeds
 
 ## License
 
-No license file is currently provided. Contact the project maintainer before
-reusing or redistributing the code.
+Original project code and documentation are available under the [MIT
+License](LICENSE). The license does not cover third-party material, including
+ferry schedule data, source images, trademarks, or content from madferry.com.
